@@ -104,12 +104,11 @@ rand = 8 #Mining roughly in middle of chunk
 fullplane = np.zeros((total_chunks))
 found = 0
 print("")
-print("Technique 1: 1x2")
+print("Technique 1: 1x2 tunnel")
 for i in range(total_chunks):
     a = Chunk()
     fullplane[i] = a.grid[8:15].sum()
     
-    #strat 1: 2x1
     tunel = np.concatenate((a.grid[10][rand],
                             a.grid[11][rand]))
     
@@ -136,12 +135,11 @@ print("Efficiency (diam/bloc mined): {}%".format(np.round((found/(total_chunks*l
 fullplane = np.zeros((total_chunks))
 found = 0
 print("")
-print("Technique 2: 2x2")
+print("Technique 2: 2x2 tunnel")
 for i in range(total_chunks):
     a = Chunk() 
     fullplane[i] = a.grid[8:15].sum()
     
-    #strat 1: 2x1
     tunel = np.concatenate((a.grid[10][rand],
                             a.grid[11][rand],
                             a.grid[10][rand+1],
@@ -172,12 +170,11 @@ print("Efficiency (diam/bloc mined): {}%".format(np.round((found/(total_chunks*l
 fullplane = np.zeros((total_chunks))
 found = 0
 print("")
-print("Technique 2: 2x3")
+print("Technique 2: 2x3 tunnel")
 for i in range(total_chunks):
     a = Chunk()
     fullplane[i] = a.grid[8:15].sum()
     
-    #strat 1: 2x1
     tunel = np.concatenate((a.grid[10][rand],
                             a.grid[11][rand],
                             a.grid[12][rand],
