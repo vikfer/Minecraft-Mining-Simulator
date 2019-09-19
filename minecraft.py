@@ -10,6 +10,9 @@ Created on Tue Apr 23 04:40:05 2019
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+import time
+
+from qol import progression
 
 class Chunk:
     def __init__(self):
@@ -19,7 +22,6 @@ class Chunk:
             self.diams_init = np.random.poisson(4)
         
         self.diams = self.diams_init
-        
         
         self.init_xy = np.floor(np.random.uniform(16,0,2)).astype(int)
         self.init_z = np.floor(np.random.uniform(15)).astype(int)
@@ -64,12 +66,9 @@ class Chunk:
         for each in range(len(coords[0])):
             print("Point {}: (x = {}, y = {}, z = {})".format(each+1,coords[2][each],coords[1][each],coords[0][each]))
         
-        
-        
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
         ax.scatter(x, y, z, zdir='z', c='blue')
-        
         
         ax.plot([coords[1][0],coords[1][0]],[coords[2][0],coords[2][0]],[0,coords[0][0]],c='red',linestyle='dashed')
         ax.plot([0,coords[1][0]],[coords[2][0],coords[2][0]],[coords[0][0],coords[0][0]],c='red',linestyle='dashed')
@@ -94,114 +93,126 @@ class Chunk:
 
 """start"""
 
-total_chunks = 100**2
-rand = 8 #Mining roughly in middle of chunk
-
-##############################################################################
-##############################################################################
-##############################################################################
-
-fullplane = np.zeros((total_chunks))
-found = 0
-print("")
-print("Technique 1: 1x2 tunnel")
-for i in range(total_chunks):
-    a = Chunk()
-    fullplane[i] = a.grid[8:15].sum()
+if __name__ == '__main__':
     
-    tunel = np.concatenate((a.grid[10][rand],
-                            a.grid[11][rand]))
-    
-    sides = np.concatenate((a.grid[9][rand],   #Down
-                            a.grid[12][rand],  #Up
-                            a.grid[10][rand-1], #Footleft
-                            a.grid[10][rand+1], #Footright
-                            a.grid[11][rand-1], #Headleft
-                            a.grid[11][rand+1] #Headright
-                            ))
-    
-    if 1 in sides or 1 in tunel:
-        found += a.diams_init
 
-print("Total diams in layers 8-15 (7)", int(sum(fullplane)))
-print("Total diams found", found)
-print("Findrate: {}%".format( np.round(found/sum(fullplane)*100),2))
-print("Efficiency (diam/bloc mined): {}%".format(np.round((found/(total_chunks*len(tunel)))*100,4)))
-
-##############################################################################
-##############################################################################
-##############################################################################
-
-fullplane = np.zeros((total_chunks))
-found = 0
-print("")
-print("Technique 2: 2x2 tunnel")
-for i in range(total_chunks):
-    a = Chunk() 
-    fullplane[i] = a.grid[8:15].sum()
+    total_chunks = 100_000
+    rand = 8 #Mining roughly in middle of chunk
     
-    tunel = np.concatenate((a.grid[10][rand],
-                            a.grid[11][rand],
-                            a.grid[10][rand+1],
-                            a.grid[11][rand+1]))
+    ##############################################################################
+    ##############################################################################
+    ##############################################################################
     
-    sides = np.concatenate((a.grid[9][rand],   #Down
-                            a.grid[12][rand],  #Up
-                            a.grid[10][rand-1], #Footleft
-                            a.grid[11][rand-1], #Headleft
-                            a.grid[9][rand+1],   #Down
-                            a.grid[12][rand+1],  #Up
-                            a.grid[10][rand+2], #Footright
-                            a.grid[11][rand+2] #Headright
-                            ))
+    fullplane = np.zeros((total_chunks))
+    found_0 = 0
+    found_1 = 0
+    found_2 = 0
+    found_3 = 0
     
-    if 1 in sides or 1 in tunel:
-        found += a.diams_init
-
-print("Total diams in layers 8-15 (7)", int(sum(fullplane)))
-print("Total diams found", found)
-print("Findrate: {}%".format( np.round(found/sum(fullplane)*100),2))
-print("Efficiency (diam/bloc mined): {}%".format(np.round((found/(total_chunks*len(tunel)))*100,4)))
-
-##############################################################################
-##############################################################################
-##############################################################################
-
-fullplane = np.zeros((total_chunks))
-found = 0
-print("")
-print("Technique 2: 2x3 tunnel")
-for i in range(total_chunks):
-    a = Chunk()
-    fullplane[i] = a.grid[8:15].sum()
+    start = time.time()
     
-    tunel = np.concatenate((a.grid[10][rand],
-                            a.grid[11][rand],
-                            a.grid[12][rand],
-                            a.grid[10][rand+1],
-                            a.grid[11][rand+1],
-                            a.grid[12][rand+1]))
+    for i in range(total_chunks):
+        
+        progression(i,total_chunks,start)
+        
+        a = Chunk()
+        fullplane[i] = a.grid[8:15].sum()
+        
+        
+        #strat 0: 1x1
+        tunel_0 = a.grid[10][rand]
+        
+        sides_0 = np.concatenate((a.grid[9][rand],   #Down
+                                a.grid[11][rand],  #Up
+                                a.grid[10][rand-1], #Footleft
+                                a.grid[10][rand+1] #Footright
+                                ))
+        
+        if 1 in sides_0 or 1 in tunel_0:
+            found_0 += a.diams_init
+        
+        
+        #strat 1: 2x1
+        tunel_1 = np.concatenate((a.grid[10][rand],
+                                a.grid[11][rand]))
+        
+        sides_1 = np.concatenate((a.grid[9][rand],   #Down
+                                a.grid[12][rand],  #Up
+                                a.grid[10][rand-1], #Footleft
+                                a.grid[10][rand+1], #Footright
+                                a.grid[11][rand-1], #Headleft
+                                a.grid[11][rand+1] #Headright
+                                ))
+        
+        if 1 in sides_1 or 1 in tunel_1:
+            found_1 += a.diams_init
+        
+        
+        #strat 2: 2x2
+        tunel_2 = np.concatenate((a.grid[10][rand],
+                                a.grid[11][rand],
+                                a.grid[10][rand+1],
+                                a.grid[11][rand+1]))
+        
+        sides_2 = np.concatenate((a.grid[9][rand],   #Down
+                                a.grid[12][rand],  #Up
+                                a.grid[10][rand-1], #Footleft
+                                a.grid[11][rand-1], #Headleft
+                                a.grid[9][rand+1],   #Down
+                                a.grid[12][rand+1],  #Up
+                                a.grid[10][rand+2], #Footright
+                                a.grid[11][rand+2] #Headright
+                                ))
+        
+        if 1 in sides_2 or 1 in tunel_2:
+            found_2 += a.diams_init
     
-    sides = np.concatenate((a.grid[9][rand],   #Down
-                            a.grid[13][rand],  #Up
-                            
-                            a.grid[10][rand-1], #Footleft
-                            a.grid[11][rand-1], #Midleft
-                            a.grid[12][rand-1],#Headleft
-                            
-                            a.grid[9][rand+1],   #Down
-                            a.grid[12][rand+1],  #Up
-                            
-                            a.grid[10][rand+2], #Footright
-                            a.grid[11][rand+2], #Midright
-                            a.grid[12][rand+2] #Headright
-                            ))
+        #strat 3: 2x3
+        tunel_3 = np.concatenate((a.grid[10][rand],
+                                a.grid[11][rand],
+                                a.grid[12][rand],
+                                a.grid[10][rand+1],
+                                a.grid[11][rand+1],
+                                a.grid[12][rand+1]))
+        
+        sides_3 = np.concatenate((a.grid[9][rand],   #Down
+                                a.grid[13][rand],  #Up
+                                
+                                a.grid[10][rand-1], #Footleft
+                                a.grid[11][rand-1], #Midleft
+                                a.grid[12][rand-1],#Headleft
+                                
+                                a.grid[9][rand+1],   #Down
+                                a.grid[12][rand+1],  #Up
+                                
+                                a.grid[10][rand+2], #Footright
+                                a.grid[11][rand+2], #Midright
+                                a.grid[12][rand+2] #Headright
+                                ))
+        
+        if 1 in sides_3 or 1 in tunel_3:
+            found_3 += a.diams_init
     
-    if 1 in sides or 1 in tunel:
-        found += a.diams_init
-
-print("Total diams in layers 8-15 (7)", int(sum(fullplane)))
-print("Total diams found", found)
-print("Findrate: {}%".format( np.round(found/sum(fullplane)*100),2))
-print("Efficiency (diam/bloc mined): {}%".format(np.round((found/(total_chunks*len(tunel)))*100,4)))
+    foundl = [found_0,
+              found_1,
+              found_2,
+              found_3]
+    
+    tunell = [tunel_0,
+              tunel_1,
+              tunel_2,
+              tunel_3]
+    
+    kind = ['1x1',
+            '2x1',
+            '2x2',
+            '3x2']
+    
+    for ii in range(len(tunell)):
+        print("")
+        print("Technique {}: \t\t\t\t{}".format(ii,kind[ii]))
+        print("Total diams in layers 8-15 (7): \t{}".format(int(sum(fullplane))))
+        print("Total diams found: \t\t\t{}".format(foundl[ii]))
+        print("Chunk Findrate: \t\t\t{:.2f}%".format(foundl[ii]/sum(fullplane)*100))
+        print("Efficiency (diam/bloc mined): \t\t{:.2f}%".format(((foundl[ii]/(total_chunks*len(tunell[ii])))*100)))
 
