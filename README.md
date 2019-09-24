@@ -1,7 +1,9 @@
 # Minecraft Mining Simulator
 Determining statisticaly optimal mining strategy in the video-game Minecraft.
 
+# Imports
 
+Importing the packages required for running the programm
 
 ```python
 # -*- coding: utf-8 -*-
@@ -39,7 +41,15 @@ def progression(i,maxi,start_time):
             
 
 ```
+# Chunk Class
 
+The generation of the Chunk goes as follows:
+- The Chunk is considered as an area of 16x16 blocks (as in the video-game), however, we will only consider the layer in which the Diamonds can appear (spawn), which are layer 0 to 16
+- Each Chunk appears with 4 Diamonds in in on average (Data: https://minecraft.gamepedia.com/Diamond_Ore#Natural_generation (while the article states 3.7, other findings have indicated that the nuber is closer to 4))
+- As we are unsure of the standard deviation of their spawn, we will generate them with an exponential distribution, and uniformely within the chunk
+- As they spawn in ores (*i.e* in regions as opposed to dispersed), we will generate randomly an initial one, then generate the others around this one
+
+Lastly, we added a method to visualize how the chunk looks like, for troubleshooting
 
 ```python
 class Chunk:
@@ -119,6 +129,13 @@ class Chunk:
         plt.show()
         #plt.savefig("demo.png")
 ```
+
+# Main
+
+Main loop
+- Generate a Chunk
+- 'Mine' through it with various tunnel sizes
+- If one of those tunnels contain a Diamond block in them, assume the player will mine all of them (as they spawn in ores, therefore the player can easily find the others by mining around)
 
 
 ```python
@@ -233,7 +250,13 @@ if __name__ == '__main__':
     80% (remaining: 10.72s)
     90% (remaining: 5.36s)
     
+# Summary of Results
 
+Showing:
+- Total Diamonds in layers generated
+- Total Diamonds found
+- Percentage of Chunks where the diamonds have been found / Total Chunks
+- Percentage of Diamonds mined / Total blocks mined for the tunnel
 
 ```python
   
@@ -290,9 +313,17 @@ if __name__ == '__main__':
     
 
 
-```python
-### Examples
+# Examples
 
+Visualization of Randomly Generated Chunks
+
+- Green is the 2x1 path taken
+- Blue are the generated Diamonds
+- Red are the XYZ axis of the generated diamonds for better vizualization
+
+
+
+```python
 for i in range (3):
     print("\n"*3)
     print(format(" Example {} ".format(i+1),"=^36s"))
@@ -341,8 +372,3 @@ for i in range (3):
 
 ![png](output_5_5.png)
 
-
-
-```python
-
-```
